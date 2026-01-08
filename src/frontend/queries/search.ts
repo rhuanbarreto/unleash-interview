@@ -20,7 +20,10 @@ export function useSearch() {
   >([]);
 
   useEffect(() => {
-    if (debouncedSearchTerm.length < 3) return;
+    if (debouncedSearchTerm.length < 3) {
+      setResults(() => []);
+      return;
+    }
     fetchSearch(debouncedSearchTerm).then((r) => setResults(() => r));
   }, [debouncedSearchTerm]);
 
