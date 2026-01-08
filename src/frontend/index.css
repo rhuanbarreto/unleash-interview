@@ -232,6 +232,38 @@ h1 {
   text-transform: capitalize;
 }
 
+.map-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.map-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--accent-color);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.map-link:hover {
+  background: var(--bg-secondary);
+  color: var(--accent-hover);
+}
+
+.map-link svg {
+  flex-shrink: 0;
+  display: block;
+  margin-top: -1px;
+}
+
 .no-results {
   text-align: center;
   padding: 3rem 1rem;
