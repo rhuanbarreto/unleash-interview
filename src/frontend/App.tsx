@@ -6,19 +6,101 @@ export function App() {
 
   return (
     <div className="app">
-      <h1>Address Search</h1>
-      <input
-        type="search"
-        name="search"
-        aria-label="Search"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-        }}
-        autoFocus
-      />
-      <pre>{JSON.stringify(results, null, 2)}</pre>
+      <div className="header">
+        <h1>Street Address Search</h1>
+        <p className="subtitle">Search for Norwegian street addresses</p>
+      </div>
+
+      <div className="search-container">
+        <svg
+          className="search-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        <input
+          type="search"
+          name="search"
+          className="search-input"
+          aria-label="Search for street addresses"
+          placeholder="Type at least 3 characters to search..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
+          autoFocus
+        />
+      </div>
+
+      {searchTerm.length > 0 && searchTerm.length < 3 && (
+        <div className="hint">
+          Type at least 3 characters to start searching
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="results-container">
+          <div className="results-header">
+            <span className="results-count">
+              Found {results.length}{" "}
+              {results.length === 1 ? "address" : "addresses"}
+            </span>
+          </div>
+
+          <div className="table-wrapper">
+            <table className="results-table">
+              <thead>
+                <tr>
+                  <th>Street Name</th>
+                  <th>Post Number</th>
+                  <th>City</th>
+                </tr>
+              </thead>
+              <tbody>
+                {results.map((address, index) => (
+                  <tr key={`${address.postNumber}-${address.street}-${index}`}>
+                    <td className="street-cell">{address.street}</td>
+                    <td className="post-number-cell">{address.postNumber}</td>
+                    <td className="city-cell">{address.city}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {searchTerm.length >= 3 && results.length === 0 && (
+        <div className="no-results">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle
+              cx="24"
+              cy="24"
+              r="20"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <path
+              d="M24 16v12M24 32v.5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+          <p>No addresses found</p>
+          <p className="no-results-hint">Try a different search term</p>
+        </div>
+      )}
     </div>
   );
 }
