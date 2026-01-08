@@ -15,3 +15,24 @@ declare module "*.module.css" {
   const classes: { readonly [key: string]: string };
   export = classes;
 }
+
+declare module "src/api/data/adresses.json" {
+  const addressList: {
+    postNumber: number;
+    city: string;
+    street: string;
+    typeCode: 1 | 2 | 3 | 4 | 5 | 6;
+    type:
+      | "Firma/organisasjon med eige postnummer"
+      | "Gate-/veg-adresse"
+      | "Kjend stadnamn"
+      | "Postboksadresse"
+      | "Postboksar (tidl Serviceboks)"
+      | "Stadnamn med postnummer";
+    district: string;
+    municipalityNumber: number;
+    municipality: string;
+    county: string;
+  }[];
+  export default addressList;
+}
