@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun install && bun --hot src/index.ts",
-    "build": "bun build ./src/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "start": "NODE_ENV=production bun src/index.ts"
+    "build": "bun build ./src/index.ts --compile --outfile ./dist/app --define:process.env.NODE_ENV='\"production\"'",
+    "start": "bun run build && chmod +x ./dist/app && ./dist/app"
   },
   "dependencies": {
     "react": "^19",
