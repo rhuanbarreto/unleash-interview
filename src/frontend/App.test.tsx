@@ -1,6 +1,8 @@
-import { test, expect } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { test, expect, afterEach } from "bun:test";
+import { render, screen, cleanup } from "@testing-library/react";
 import { App } from "./App";
+
+afterEach(cleanup);
 
 test("App > renders header and title", () => {
   render(<App />);

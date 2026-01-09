@@ -1,6 +1,8 @@
-import { test, expect } from "bun:test";
-import { render } from "@testing-library/react";
+import { test, expect, afterEach } from "bun:test";
+import { render, cleanup } from "@testing-library/react";
 import { ResultsTable } from "./ResultsTable";
+
+afterEach(cleanup);
 
 const mockResults = [
   {

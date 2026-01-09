@@ -1,6 +1,8 @@
-import { test, expect } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { test, expect, afterEach } from "bun:test";
+import { render, screen, cleanup } from "@testing-library/react";
 import { NoResults } from "./NoResults";
+
+afterEach(cleanup);
 
 test("NoResults > renders main message", () => {
   render(<NoResults />);

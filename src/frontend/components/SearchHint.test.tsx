@@ -1,6 +1,8 @@
-import { test, expect } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { test, expect, afterEach } from "bun:test";
+import { render, screen, cleanup } from "@testing-library/react";
 import { SearchHint } from "./SearchHint";
+
+afterEach(cleanup);
 
 test("SearchHint > renders hint message", () => {
   render(<SearchHint />);
