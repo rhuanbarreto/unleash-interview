@@ -3,7 +3,7 @@ import type adresses from "src/api/data/adresses.json";
 import { useDebounce } from "../helpers/useDebounce";
 
 function fetchSearch(searchTerm: string) {
-  return fetch(`/search/${searchTerm}`).then(async (r) => {
+  return fetch(`/search/${encodeURIComponent(searchTerm)}`).then(async (r) => {
     if (!r.ok) {
       const content = await r.text();
       throw new Error(content);
