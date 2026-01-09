@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "bun install && bun --hot src/index.ts",
     "build": "bun build ./src/index.ts --compile --outfile ./dist/app --define:process.env.NODE_ENV='\"production\"'",
-    "start": "bun run build && chmod +x ./dist/app && ./dist/app"
+    "start": "bun run build && chmod +x ./dist/app && ./dist/app",
+    "typecheck": "tsgo --noEmit",
+    "lint": "oxlint --type-aware src"
   },
   "dependencies": {
     "react": "^19",
@@ -14,8 +16,15 @@
     "trie-search": "^2.2.1"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "^20.1.0",
+    "@testing-library/react": "^16.3.1",
+    "@total-typescript/ts-reset": "^0.6.1",
+    "@types/bun": "latest",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/bun": "latest"
+    "@typescript/native-preview": "^7.0.0-dev.20260108.1",
+    "happy-dom": "^20.1.0",
+    "oxlint": "^1.38.0",
+    "oxlint-tsgolint": "^0.10.1"
   }
 }
