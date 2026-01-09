@@ -1,41 +1,20 @@
 import { serve } from "bun";
 import index from "./frontend/index.html";
-import { search } from "./api/searchService";
-import { checkRateLimit } from "./api/middleware/rateLimit";
-import { logger, logRequest } from "./api/middleware/logger";
+import { logger } from "./api/middleware/logger";
+import { searchRoute } from "./api/routes/search";
+import { healthRoute } from "./api/routes/health";
+import { errorHander } from "./api/routes/errorHandler";
 
 export const server = serve({
   routes: {
     // Healthcheck endpoint for k8s deployments
-    "/health": () =>
-      Response.json({
-        status: "ok",
-        uptime: process.uptime(),
-      }),
-
+    "/health": healthRoute,
     // Search API endpoint with validation and rate limiting
-    "/search/:term": (req) => {
-      logRequest(req);
-
-      // Check rate limit
-      const rateLimitResponse = checkRateLimit(req);
-      if (rateLimitResponse) return rateLimitResponse;
-
-      const results = search(Bun.escapeHTML(req.params.term));
-      return Response.json(results);
-    },
-
+    "/search/:term": searchRoute,
     // Serve index.html for all other routes (SPA fallback)
     "/*": index,
   },
-
-  error: (error) => {
-    logger.error("Server error", {
-      message: error.message,
-      stack: error.stack,
-    });
-    return new Response("Internal Server Error", { status: 500 });
-  },
+  error: errorHander,
 
   development: process.env.NODE_ENV !== "production" && {
     // Enable browser hot reloading in development
