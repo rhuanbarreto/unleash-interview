@@ -96,7 +96,7 @@ describe("searchService", () => {
 
       const firstResult = results[0];
       // Small type narrowing
-      if (!firstResult) throw new Error("firstResult foesn't exist");
+      if (!firstResult) throw new Error("firstResult doesn't exist");
       expect(firstResult).toHaveProperty("postNumber");
       expect(firstResult).toHaveProperty("city");
       expect(firstResult).toHaveProperty("street");
@@ -114,6 +114,23 @@ describe("searchService", () => {
       const results = search("5750");
       expect(results.length).toBeGreaterThan(0);
       expect(results.some((r) => r.postNumber == 5750)).toBe(true);
+    });
+
+    test("limits results to maximum of 20 items", () => {
+      // Search for a very common term that would return more than 20 results
+      const results = search("Postboks");
+      // Should not exceed the limit of 20 results
+      expect(results.length).toBeLessThanOrEqual(20);
+    });
+
+    test("does not include $tsid property in results", () => {
+      const results = search("OSLO");
+      expect(results.length).toBeGreaterThan(0);
+
+      const firstResult = results[0];
+      if (!firstResult) throw new Error("firstResult doesn't exist");
+      // The $tsid property should be removed from results
+      expect(firstResult).not.toHaveProperty("$tsid");
     });
   });
 });
