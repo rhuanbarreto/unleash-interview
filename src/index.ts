@@ -1,8 +1,8 @@
 import { serve } from "bun";
 import index from "./frontend/index.html";
 import { search } from "./api/searchService";
-import { checkRateLimit } from "./middleware/rateLimit";
-import { logger, logRequest } from "./middleware/logger";
+import { checkRateLimit } from "./api/middleware/rateLimit";
+import { logger, logRequest } from "./api/middleware/logger";
 
 export const server = serve({
   routes: {
