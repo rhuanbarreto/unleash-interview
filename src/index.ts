@@ -4,7 +4,13 @@ import { search } from "./api/searchService";
 
 export const server = serve({
   routes: {
-    // Serve index.html for all unmatched routes.
+    // Healthcheck endpoint for k8s deployments
+    "/health": () =>
+      Response.json({
+        status: "ok",
+        uptime: process.uptime(),
+      }),
+
     "/*": index,
     "/search/:term": (req) => Response.json(search(req.params.term)),
     "/health": () => new Response("OK", { status: 200 }),
