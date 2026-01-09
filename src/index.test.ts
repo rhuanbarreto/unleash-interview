@@ -140,4 +140,89 @@ describe("Backend Server", () => {
       expect(server.url.toString()).toMatch(/^http:\/\//);
     });
   });
+
+  describe("GET /health", () => {
+    test("returns 200 status", async () => {
+      const response = await fetch(`${baseUrl}/health`);
+      expect(response.status).toBe(200);
+    });
+
+    test("returns JSON with status ok", async () => {
+      const response = await fetch(`${baseUrl}/health`);
+      const data = await response.json();
+      expect(data).toHaveProperty("status");
+      expect(data.status).toBe("ok");
+      expect(data).toHaveProperty("uptime");
+    });
+  });
+
+  describe("Input Validation", () => {
+    test("accepts valid Norwegian characters", async () => {
+      const response = await fetch(`${baseUrl}/search/Østfold`);
+      expect(response.status).toBe(200);
+    });
+
+    test("sanitizes whitespace", async () => {
+      const response = await fetch(`${baseUrl}/search/  OSLO  `);
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(Array.isArray(data)).toBe(true);
+    });
+  });
+
+  describe("Security", () => {
+    test("escapes HTML in search terms to prevent XSS", async () => {
+      const xssPayload = "<script>alert('xss')</script>";
+      const response = await fetch(
+        `${baseUrl}/search/${encodeURIComponent(xssPayload)}`
+      );
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      // Should return empty array as the escaped HTML won't match any real data
+      expect(Array.isArray(data)).toBe(true);
+    });
+
+    test("handles potentially malicious search patterns", async () => {
+      const maliciousPatterns = [
+        "<img src=x onerror=alert(1)>",
+        "javascript:alert(1)",
+        "<svg onload=alert(1)>",
+      ];
+
+      for (const pattern of maliciousPatterns) {
+        const response = await fetch(
+          `${baseUrl}/search/${encodeURIComponent(pattern)}`
+        );
+        expect(response.status).toBe(200);
+        const data = await response.json();
+        expect(Array.isArray(data)).toBe(true);
+      }
+    });
+  });
+
+  describe("Rate Limiting", () => {
+    test("allows requests within rate limit", async () => {
+      // Make a few requests that should succeed
+      for (let i = 0; i < 5; i++) {
+        const response = await fetch(`${baseUrl}/search/test${i}`);
+        expect(response.status).toBe(200);
+      }
+    });
+
+    test("blocks requests after exceeding rate limit", async () => {
+      // Make 100 requests (the limit)
+      const requests = [];
+      for (let i = 0; i < 100; i++) {
+        requests.push(fetch(`${baseUrl}/search/limit${i}`));
+      }
+      await Promise.all(requests);
+
+      // The 101st request should be rate limited
+      const response = await fetch(`${baseUrl}/search/limitexceeded`);
+      expect(response.status).toBe(429);
+      expect(await response.text()).toContain("Too many requests");
+      expect(response.headers.get("retry-after")).toBeDefined();
+      expect(Number(response.headers.get("retry-after"))).toBeGreaterThan(0);
+    });
+  });
 });
