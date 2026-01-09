@@ -4,9 +4,12 @@ import { SearchBar } from "./components/SearchBar";
 import { SearchHint } from "./components/SearchHint";
 import { ResultsTable } from "./components/ResultsTable";
 import { NoResults } from "./components/NoResults";
+import { LoadingState } from "./components/LoadingState";
+import { ErrorState } from "./components/ErrorState";
+import { SEARCH_MIN_LENGTH } from "../config/constants";
 
 export function App() {
-  const { searchTerm, setSearchTerm, results } = useSearch();
+  const { searchTerm, setSearchTerm, results, isLoading, error } = useSearch();
 
   return (
     <div className="app">
@@ -17,11 +20,22 @@ export function App() {
 
       <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
-      {searchTerm.length > 0 && searchTerm.length < 3 && <SearchHint />}
+      {searchTerm.length > 0 && searchTerm.length < SEARCH_MIN_LENGTH && (
+        <SearchHint />
+      )}
 
-      {results.length > 0 && <ResultsTable results={results} />}
+      {isLoading && <LoadingState />}
 
-      {searchTerm.length >= 3 && results.length === 0 && <NoResults />}
+      {error && !isLoading && <ErrorState message={error} />}
+
+      {!isLoading && !error && results.length > 0 && (
+        <ResultsTable results={results} />
+      )}
+
+      {!isLoading &&
+        !error &&
+        searchTerm.length >= SEARCH_MIN_LENGTH &&
+        results.length === 0 && <NoResults />}
     </div>
   );
 }
