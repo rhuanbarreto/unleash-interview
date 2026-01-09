@@ -2,7 +2,7 @@ import { serve } from "bun";
 import index from "./frontend/index.html";
 import { search } from "./api/searchService";
 
-const server = serve({
+export const server = serve({
   routes: {
     // Serve index.html for all unmatched routes.
     "/*": index,
