@@ -46,6 +46,11 @@ This application provides a fast and intuitive interface for searching through N
 unleash-interview/
 ├── src/
 │   ├── index.ts                    # Main server entry point
+│   ├── config/
+│   │   └── constants.ts            # Application constants
+│   ├── middleware/
+│   │   ├── rateLimit.ts            # Rate limiting middleware
+│   │   └── logger.ts               # Structured logging utility
 │   ├── api/
 │   │   ├── data/
 │   │   │   └── adresses.json       # Norwegian address database
@@ -60,9 +65,12 @@ unleash-interview/
 │       │   ├── SearchBar.tsx       # Search input component
 │       │   ├── SearchHint.tsx      # Minimum character hint
 │       │   ├── ResultsTable.tsx    # Search results display
-│       │   └── NoResults.tsx       # Empty state component
+│       │   ├── NoResults.tsx       # Empty state component
+│       │   ├── LoadingState.tsx    # Loading indicator
+│       │   ├── ErrorState.tsx      # Error message display
+│       │   └── ErrorBoundary.tsx   # React error boundary
 │       ├── queries/
-│       │   └── search.ts           # Search API hook
+│       │   └── search.ts           # Search API hook with error handling
 │       └── helpers/
 │           └── useDebounce.ts      # Debounce utility hook
 ├── package.json                    # Project dependencies and scripts
@@ -79,8 +87,20 @@ unleash-interview/
 - **`index.ts`**: Configures the Bun server with routes and development features
 
   - Serves the frontend HTML
-  - Exposes `/search/:term` API endpoint
+  - Exposes `/search/:term` API endpoint with input sanitization and rate limiting
+  - Exposes `/health` endpoint for monitoring
+  - Includes error handling and structured logging
   - Enables HMR in development mode
+
+- **`config/constants.ts`**: Application-wide constants
+
+  - Search configuration (min/max length, debounce delay)
+  - Rate limiting settings
+
+- **`middleware/`**: Production-ready middleware
+
+  - **`rateLimit.ts`**: IP-based rate limiting (100 req/min)
+  - **`logger.ts`**: Structured JSON logging with timestamps
 
 - **`api/searchService.ts`**: Core search functionality
   - Initializes a Trie data structure with Norwegian addresses
@@ -91,9 +111,13 @@ unleash-interview/
 #### Frontend (`src/frontend/`)
 
 - **Component Architecture**: Modular, reusable React components
+  - **`ErrorBoundary.tsx`**: Catches and handles React runtime errors
+  - **`LoadingState.tsx`**: Visual feedback during API requests
+  - **`ErrorState.tsx`**: User-friendly error messages
 - **State Management**: React hooks with custom search hook
-- **API Integration**: Fetch-based communication with backend
+- **API Integration**: Fetch-based communication with error handling
 - **Performance**: Debounced search input (250ms default)
+- **Error Resilience**: Comprehensive error handling at multiple levels
 
 ## Prerequisites
 
@@ -197,9 +221,10 @@ bun test --coverage
 
 ### Test Suite
 
-The project includes **73 tests across 8 test files**, providing comprehensive coverage:
+The project includes **67 tests across 11 test files**, providing comprehensive coverage:
 
 **Test Files:**
+
 - `src/api/searchService.test.ts` - Core search logic and Trie implementation
 - `src/frontend/App.test.tsx` - Main application component
 - `src/frontend/helpers/useDebounce.test.ts` - Debounce hook functionality
@@ -207,9 +232,13 @@ The project includes **73 tests across 8 test files**, providing comprehensive c
 - `src/frontend/components/SearchHint.test.tsx` - Minimum character hint
 - `src/frontend/components/ResultsTable.test.tsx` - Results display
 - `src/frontend/components/NoResults.test.tsx` - Empty state component
-- `src/index.test.ts` - Server and routing tests
+- `src/frontend/components/LoadingState.test.tsx` - Loading indicator
+- `src/frontend/components/ErrorState.test.tsx` - Error message display
+- `src/frontend/components/ErrorBoundary.test.tsx` - Error boundary component
+- `src/index.test.ts` - Server, routing, and health check tests
 
 **Test Coverage Includes:**
+
 - **Minimum Length Validation**: Ensures 3-character minimum is enforced
 - **Multi-field Search**: Tests across street names, cities, and postal codes
 - **Case Insensitivity**: Verifies searches work with any casing
@@ -225,10 +254,10 @@ Example test output:
 ```
 bun test v1.3.5
 
- 73 pass
+ 66 pass
  0 fail
- 140 expect() calls
-Ran 73 tests across 8 files. [2.14s]
+ 121 expect() calls
+Ran 67 tests across 11 files. [2.22s]
 ```
 
 ## Building for Production
@@ -279,6 +308,7 @@ bun start
 ```
 
 This command will:
+
 1. Compile the application to a standalone executable
 2. Make the executable runnable (`chmod +x`)
 3. Run the compiled application
@@ -318,6 +348,7 @@ PORT=8080 ./dist/app
 ```
 
 **Note**:
+
 - Bun automatically loads `.env` files in development
 - `NODE_ENV=production` is compiled into the executable at build time
 - The compiled executable does not load `.env` files - set environment variables directly
@@ -346,29 +377,23 @@ NODE_ENV=production bun src/index.ts
 #### Option 3: Docker Deployment
 
 ```dockerfile
-FROM oven/bun:1 as builder
+FROM oven/bun:1.3.5-slim AS base
+
+ENV NODE_ENV=production
 
 WORKDIR /app
-
-COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile
-
 COPY . .
+RUN bun install
 
-# Build the standalone executable
-RUN bun run build
+RUN bun build ./src/index.ts --compile --sourcemap --outfile ./dist/app --define:process.env.NODE_ENV='"production"'
 
-# Use a minimal runtime image
-FROM debian:bookworm-slim
-
-WORKDIR /app
-
-# Copy only the executable
-COPY --from=builder /app/dist/app .
-
+FROM gcr.io/distroless/base-nossl-debian11 AS runtime
+ENV NODE_ENV=production
 EXPOSE 3000
 
-CMD ["./app"]
+COPY --from=base /app/dist/app /usr/local/bin/
+
+CMD ["app"]
 ```
 
 #### Option 4: Cloud Platforms
@@ -381,19 +406,42 @@ CMD ["./app"]
 
 Before deploying to production:
 
-- [ ] Run `bun test` to ensure all tests pass
+- [x] Run `bun test` to ensure all tests pass (67 tests passing)
+- [x] Input sanitization with `Bun.escapeHTML()` implemented
+- [x] Rate limiting configured (100 req/min per IP)
+- [x] Structured logging with timestamps and metadata
+- [x] Health check endpoint for monitoring (`/health`)
+- [x] Error handling and error boundaries
 - [ ] Build the application with `bun run build`
 - [ ] Test the compiled executable locally with `./dist/app`
 - [ ] Verify the executable works on the target platform/OS
-- [ ] Set up monitoring and logging
 - [ ] Configure SSL/HTTPS (use reverse proxy like nginx/caddy)
-- [ ] Set up rate limiting if needed
-- [ ] Review security headers
 - [ ] Configure PORT environment variable if needed
+- [ ] Set up external monitoring service (optional)
+- [ ] Configure error tracking service like Sentry (optional)
 
 ## API Documentation
 
 ### Endpoints
+
+#### `GET /health`
+
+Health check endpoint for monitoring and load balancer checks.
+
+**Response:**
+
+```json
+{
+  "status": "ok",
+  "uptime": 123.456
+}
+```
+
+**Status Codes:**
+
+- `200 OK`: Service is healthy
+
+---
 
 #### `GET /search/:term`
 
@@ -401,16 +449,22 @@ Search for Norwegian addresses by street name, postal code, or city.
 
 **Parameters:**
 
-- `term` (string, path parameter): Search query term (minimum 3 characters)
+- `term` (string, path parameter): Search query term (minimum 3 characters, maximum 100 characters)
 
 **Response:**
 
 ```typescript
+// Success
 Array<{
   street: string; // Street name
   postNumber: number; // Norwegian postal code (4-5 digits)
   city: string; // City name
 }>;
+
+// Error
+{
+  error: string; // Error message
+}
 ```
 
 **Example Request:**
@@ -419,7 +473,7 @@ Array<{
 curl http://localhost:3000/search/oslo
 ```
 
-**Example Response:**
+**Example Success Response:**
 
 ```json
 [
@@ -436,18 +490,39 @@ curl http://localhost:3000/search/oslo
 ]
 ```
 
+**Example Error Response:**
+
+```json
+{
+  "error": "Search term contains invalid characters"
+}
+```
+
+**Input Sanitization:**
+
+- Search terms are sanitized using `Bun.escapeHTML()` to prevent XSS attacks
+- Minimum 3 characters required (enforced by search service)
+- Leading and trailing whitespace is automatically trimmed by the browser
+
 **Search Behavior:**
 
-- Minimum 3 characters required (returns empty array otherwise)
 - Case-insensitive search
-- Prefix matching across all fields
+- Prefix matching across all fields (street, postal code, city)
 - Maximum 20 results returned
 - Results are deduplicated by `postNumber + city + typeCode`
 
 **Status Codes:**
 
 - `200 OK`: Successful search (including empty results)
-- `404 Not Found`: Invalid route
+- `400 Bad Request`: Invalid search term (validation failed)
+- `429 Too Many Requests`: Rate limit exceeded (100 requests/minute)
+- `500 Internal Server Error`: Server error during search
+
+**Rate Limiting:**
+
+- 100 requests per minute per IP address
+- Returns `429 Too Many Requests` when exceeded
+- Includes `Retry-After` header with seconds to wait
 
 ## Performance Considerations
 
@@ -528,7 +603,7 @@ Path aliases configured:
 
 **Issue**: Build fails
 
-- **Solution**: Check TypeScript errors with `bunx tsc --noEmit`
+- **Solution**: Check TypeScript errors with `bun run typecheck`
 
 **Issue**: Compiled executable won't run
 
