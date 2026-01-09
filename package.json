@@ -11,9 +11,10 @@
     "lint": "oxlint --type-aware src"
   },
   "dependencies": {
+    "@orama/orama": "^3.1.18",
+    "@orama/plugin-qps": "^3.1.18",
     "react": "^19",
-    "react-dom": "^19",
-    "trie-search": "^2.2.1"
+    "react-dom": "^19"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.1.0",

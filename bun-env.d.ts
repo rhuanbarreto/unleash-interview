@@ -21,14 +21,8 @@ declare module "src/api/data/adresses.json" {
     postNumber: number;
     city: string;
     street: string;
-    typeCode: 1 | 2 | 3 | 4 | 5 | 6;
-    type:
-      | "Firma/organisasjon med eige postnummer"
-      | "Gate-/veg-adresse"
-      | "Kjend stadnamn"
-      | "Postboksadresse"
-      | "Postboksar (tidl Serviceboks)"
-      | "Stadnamn med postnummer";
+    typeCode: number;
+    type: string;
     district: string;
     municipalityNumber: number;
     municipality: string;

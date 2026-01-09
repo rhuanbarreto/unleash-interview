@@ -6,7 +6,7 @@ A high-performance web application for searching Norwegian street addresses with
 
 ## Overview
 
-This application provides a fast and intuitive interface for searching through Norwegian addresses. It uses a Trie-based search algorithm for efficient prefix matching across street names, postal codes, and cities. The application features a React-based frontend with a Bun-powered backend server.
+This application provides a fast and intuitive interface for searching through Norwegian addresses. It uses Orama, a modern full-text search library, for efficient searching across street names, postal codes, and cities. The application features a React-based frontend with a Bun-powered backend server.
 
 ### Key Features
 
@@ -34,7 +34,7 @@ This application provides a fast and intuitive interface for searching through N
 ### Backend
 
 - **Bun.serve()** - High-performance HTTP server
-- **trie-search** - Efficient prefix-based search algorithm
+- **@orama/orama** - Fast, modern full-text search engine
 
 ### Development
 
@@ -114,7 +114,7 @@ unleash-interview/
   - **`errorHandler.ts`**: Centralized error handling
 
 - **`api/services/searchService.ts`**: Core search functionality
-  - Initializes a Trie data structure with Norwegian addresses
+  - Initializes an Orama database with Norwegian addresses
   - Indexes on street, postNumber, and city fields
   - Returns up to 20 results per query
   - Enforces minimum 3-character search length
@@ -226,7 +226,7 @@ The project includes **91 tests across 11 test files**, providing comprehensive 
 
 **Test Files:**
 
-- `src/api/services/searchService.test.ts` - Core search logic and Trie implementation
+- `src/api/services/searchService.test.ts` - Core search logic with Orama
 - `src/frontend/App.test.tsx` - Main application component
 - `src/frontend/helpers/useDebounce.test.ts` - Debounce hook functionality
 - `src/frontend/components/SearchBar.test.tsx` - Search input component
@@ -396,7 +396,7 @@ CMD ["app"]
 
 ### Search Performance
 
-- **Trie Data Structure**: O(m) search complexity where m = query length
+- **Orama Search Engine**: Fast full-text search with modern algorithms
 - **Indexed Fields**: Street, postal code, and city for fast lookups
 - **Result Limiting**: Maximum 20 results to prevent overwhelming UI
 - **Minimum Query Length**: 3 characters reduces unnecessary searches
@@ -480,7 +480,7 @@ This project is private and created for the Unleash technical interview.
 - [Bun Documentation](https://bun.sh/docs)
 - [React Documentation](https://react.dev)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Trie Data Structure](https://en.wikipedia.org/wiki/Trie)
+- [Orama Documentation](https://docs.orama.com/)
 
 ## Project Metadata
 
