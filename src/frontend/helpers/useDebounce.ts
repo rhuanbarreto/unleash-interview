@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { SEARCH_DEBOUNCE_DELAY } from "../../config/constants";
 
 export function useDebounce(value: string) {
   // State to store the debounced value
@@ -8,7 +9,7 @@ export function useDebounce(value: string) {
     // Set a timeout to update the debounced value after the specified delay
     const handler = setTimeout(() => {
       setDebouncedValue(value);
-    }, 250);
+    }, SEARCH_DEBOUNCE_DELAY);
 
     // Cleanup function: Cancel the timeout if value changes before the timeout fires
     return () => {
