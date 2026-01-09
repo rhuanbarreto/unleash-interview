@@ -24,7 +24,7 @@ export function useSearch() {
       setResults(() => []);
       return;
     }
-    fetchSearch(debouncedSearchTerm).then((r) => setResults(() => r));
+    void fetchSearch(debouncedSearchTerm).then((r) => setResults(() => r));
   }, [debouncedSearchTerm]);
 
   return { searchTerm, setSearchTerm, results } as const;
