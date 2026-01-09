@@ -5,9 +5,9 @@ import { server } from "./index";
 describe("Backend Server", () => {
   let baseUrl: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     // Unregister happy-dom to use native fetch for server testing
-    GlobalRegistrator.unregister();
+    await GlobalRegistrator.unregister();
 
     baseUrl = server.url.toString().replace(/\/$/, ""); // Remove trailing slash
   });
