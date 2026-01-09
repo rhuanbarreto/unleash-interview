@@ -15,6 +15,7 @@ function formatLog(entry: LogEntry): string {
 
 export const logger = {
   info: (message: string, metadata?: Record<string, unknown>) => {
+    if (process.env.NODE_ENV === "test") return;
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level: "info",
@@ -25,6 +26,7 @@ export const logger = {
   },
 
   warn: (message: string, metadata?: Record<string, unknown>) => {
+    if (process.env.NODE_ENV === "test") return;
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level: "warn",
@@ -46,6 +48,7 @@ export const logger = {
 };
 
 export function logRequest(request: Request): void {
+  if (process.env.NODE_ENV === "test") return;
   const url = new URL(request.url);
   logger.info("Incoming request", {
     ip:
