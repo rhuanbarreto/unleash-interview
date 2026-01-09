@@ -1,40 +1,42 @@
-import { test, expect, afterEach } from "bun:test";
+import { test, expect, afterEach, describe } from "bun:test";
 import { render, screen, cleanup } from "@testing-library/react";
 import { NoResults } from "./NoResults";
 
-afterEach(cleanup);
+describe("NoResults", () => {
+  afterEach(cleanup);
 
-test("NoResults > renders main message", () => {
-  render(<NoResults />);
+  test("renders main message", () => {
+    render(<NoResults />);
 
-  expect(screen.getByText("No addresses found")).toBeDefined();
-});
+    expect(screen.getByText("No addresses found")).toBeDefined();
+  });
 
-test("NoResults > renders hint message", () => {
-  render(<NoResults />);
+  test("renders hint message", () => {
+    render(<NoResults />);
 
-  expect(screen.getByText("Try a different search term")).toBeDefined();
-});
+    expect(screen.getByText("Try a different search term")).toBeDefined();
+  });
 
-test("NoResults > has correct className for container", () => {
-  const { container } = render(<NoResults />);
+  test("has correct className for container", () => {
+    const { container } = render(<NoResults />);
 
-  const noResultsDiv = container.querySelector(".no-results");
-  expect(noResultsDiv).toBeDefined();
-});
+    const noResultsDiv = container.querySelector(".no-results");
+    expect(noResultsDiv).toBeDefined();
+  });
 
-test("NoResults > has correct className for hint", () => {
-  const { container } = render(<NoResults />);
+  test("has correct className for hint", () => {
+    const { container } = render(<NoResults />);
 
-  const hintP = container.querySelector(".no-results-hint");
-  expect(hintP).toBeDefined();
-});
+    const hintP = container.querySelector(".no-results-hint");
+    expect(hintP).toBeDefined();
+  });
 
-test("NoResults > renders icon SVG", () => {
-  const { container } = render(<NoResults />);
+  test("renders icon SVG", () => {
+    const { container } = render(<NoResults />);
 
-  const svg = container.querySelector("svg");
-  expect(svg).toBeDefined();
-  expect(svg?.getAttribute("width")).toBe("48");
-  expect(svg?.getAttribute("height")).toBe("48");
+    const svg = container.querySelector("svg");
+    expect(svg).toBeDefined();
+    expect(svg?.getAttribute("width")).toBe("48");
+    expect(svg?.getAttribute("height")).toBe("48");
+  });
 });

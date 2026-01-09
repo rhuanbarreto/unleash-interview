@@ -1,83 +1,85 @@
-import { test, expect, afterEach } from "bun:test";
+import { test, expect, afterEach, describe } from "bun:test";
 import { render, screen, cleanup } from "@testing-library/react";
 import { SearchBar } from "./SearchBar";
 
-afterEach(cleanup);
+describe("SearchBar", () => {
+  afterEach(cleanup);
 
-test("SearchBar > renders with initial empty value", () => {
-  const mockOnChange = () => {};
-  render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
+  test("renders with initial empty value", () => {
+    const mockOnChange = () => {};
+    render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
 
-  const input = screen.getByRole("searchbox");
-  expect(input).toBeDefined();
-  expect((input as HTMLInputElement).value).toBe("");
-});
+    const input = screen.getByRole("searchbox");
+    expect(input).toBeDefined();
+    expect((input as HTMLInputElement).value).toBe("");
+  });
 
-test("SearchBar > renders with initial value", () => {
-  const mockOnChange = () => {};
-  const { container } = render(<SearchBar searchTerm="oslo" onSearchChange={mockOnChange} />);
+  test("renders with initial value", () => {
+    const mockOnChange = () => {};
+    const { container } = render(<SearchBar searchTerm="oslo" onSearchChange={mockOnChange} />);
 
-  const input = container.querySelector("input");
-  expect((input as HTMLInputElement).value).toBe("oslo");
-});
+    const input = container.querySelector("input");
+    expect((input as HTMLInputElement).value).toBe("oslo");
+  });
 
-test("SearchBar > displays placeholder text", () => {
-  const mockOnChange = () => {};
-  render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
+  test("displays placeholder text", () => {
+    const mockOnChange = () => {};
+    render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
 
-  const input = screen.getByPlaceholderText(
-    "Type at least 3 characters to search..."
-  );
-  expect(input).toBeDefined();
-});
+    const input = screen.getByPlaceholderText(
+      "Type at least 3 characters to search..."
+    );
+    expect(input).toBeDefined();
+  });
 
-test("SearchBar > has correct aria-label for accessibility", () => {
-  const mockOnChange = () => {};
-  render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
+  test("has correct aria-label for accessibility", () => {
+    const mockOnChange = () => {};
+    render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
 
-  const input = screen.getByLabelText("Search for street addresses");
-  expect(input).toBeDefined();
-});
+    const input = screen.getByLabelText("Search for street addresses");
+    expect(input).toBeDefined();
+  });
 
-test("SearchBar > renders search icon", () => {
-  const mockOnChange = () => {};
-  const { container } = render(
-    <SearchBar searchTerm="" onSearchChange={mockOnChange} />
-  );
+  test("renders search icon", () => {
+    const mockOnChange = () => {};
+    const { container } = render(
+      <SearchBar searchTerm="" onSearchChange={mockOnChange} />
+    );
 
-  const svg = container.querySelector(".search-icon");
-  expect(svg).toBeDefined();
-  expect(svg?.tagName.toLowerCase()).toBe("svg");
-});
+    const svg = container.querySelector(".search-icon");
+    expect(svg).toBeDefined();
+    expect(svg?.tagName.toLowerCase()).toBe("svg");
+  });
 
-test("SearchBar > input has name attribute", () => {
-  const mockOnChange = () => {};
-  render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
+  test("input has name attribute", () => {
+    const mockOnChange = () => {};
+    render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
 
-  const input = screen.getByRole("searchbox") as HTMLInputElement;
-  expect(input.name).toBe("search");
-});
+    const input = screen.getByRole("searchbox") as HTMLInputElement;
+    expect(input.name).toBe("search");
+  });
 
-test("SearchBar > input has search type", () => {
-  const mockOnChange = () => {};
-  render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
+  test("input has search type", () => {
+    const mockOnChange = () => {};
+    render(<SearchBar searchTerm="" onSearchChange={mockOnChange} />);
 
-  const input = screen.getByRole("searchbox") as HTMLInputElement;
-  expect(input.getAttribute("type")).toBe("search");
-});
+    const input = screen.getByRole("searchbox") as HTMLInputElement;
+    expect(input.getAttribute("type")).toBe("search");
+  });
 
-test("SearchBar > has correct CSS classes", () => {
-  const mockOnChange = () => {};
-  const { container } = render(
-    <SearchBar searchTerm="" onSearchChange={mockOnChange} />
-  );
+  test("has correct CSS classes", () => {
+    const mockOnChange = () => {};
+    const { container } = render(
+      <SearchBar searchTerm="" onSearchChange={mockOnChange} />
+    );
 
-  const searchContainer = container.querySelector(".search-container");
-  expect(searchContainer).toBeDefined();
+    const searchContainer = container.querySelector(".search-container");
+    expect(searchContainer).toBeDefined();
 
-  const searchInput = container.querySelector(".search-input");
-  expect(searchInput).toBeDefined();
+    const searchInput = container.querySelector(".search-input");
+    expect(searchInput).toBeDefined();
 
-  const searchIcon = container.querySelector(".search-icon");
-  expect(searchIcon).toBeDefined();
+    const searchIcon = container.querySelector(".search-icon");
+    expect(searchIcon).toBeDefined();
+  });
 });
