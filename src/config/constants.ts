@@ -11,6 +11,3 @@ export const SEARCH_DEBOUNCE_DELAY = 250;
 // Rate limiting
 export const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
 export const RATE_LIMIT_MAX_REQUESTS = 100; // 100 requests per minute
-
-// Allowed characters in search (alphanumeric, spaces, and common Norwegian characters)
-export const SEARCH_ALLOWED_CHARS = /^[a-zA-ZæøåÆØÅ0-9\s\-.,]*$/;

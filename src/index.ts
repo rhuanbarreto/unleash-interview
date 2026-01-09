@@ -1,6 +1,8 @@
 import { serve } from "bun";
 import index from "./frontend/index.html";
 import { search } from "./api/searchService";
+import { checkRateLimit } from "./middleware/rateLimit";
+import { logger, logRequest } from "./middleware/logger";
 
 export const server = serve({
   routes: {
@@ -11,13 +13,27 @@ export const server = serve({
         uptime: process.uptime(),
       }),
 
+    // Search API endpoint with validation and rate limiting
+    "/search/:term": (req) => {
+      logRequest(req);
+
+      // Check rate limit
+      const rateLimitResponse = checkRateLimit(req);
+      if (rateLimitResponse) return rateLimitResponse;
+
+      const results = search(Bun.escapeHTML(req.params.term));
+      return Response.json(results);
+    },
+
+    // Serve index.html for all other routes (SPA fallback)
     "/*": index,
-    "/search/:term": (req) => Response.json(search(req.params.term)),
-    "/health": () => new Response("OK", { status: 200 }),
   },
 
   error: (error) => {
-    console.error("Server error:", error, error.stack);
+    logger.error("Server error", {
+      message: error.message,
+      stack: error.stack,
+    });
     return new Response("Internal Server Error", { status: 500 });
   },
 
@@ -30,4 +46,7 @@ export const server = serve({
   },
 });
 
-console.log(`🚀 Server running at ${server.url}`);
+logger.info("Server started", {
+  url: server.url.toString(),
+  env: process.env.NODE_ENV || "development",
+});
