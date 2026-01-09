@@ -1,7 +1,7 @@
 import {
   RATE_LIMIT_WINDOW_MS,
   RATE_LIMIT_MAX_REQUESTS,
-} from "../config/constants";
+} from "../../config/constants";
 import { logger } from "./logger";
 
 interface RateLimitEntry {
