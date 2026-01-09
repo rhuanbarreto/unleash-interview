@@ -2,6 +2,8 @@
 
 A high-performance web application for searching Norwegian street addresses with real-time search capabilities and interactive map integration. Built as part of the Unleash technical interview.
 
+**🚀 Live Demo**: [https://unleash.barreto.work/](https://unleash.barreto.work/) (deployed on Railway)
+
 ## Overview
 
 This application provides a fast and intuitive interface for searching through Norwegian addresses. It uses a Trie-based search algorithm for efficient prefix matching across street names, postal codes, and cities. The application features a React-based frontend with a Bun-powered backend server.
