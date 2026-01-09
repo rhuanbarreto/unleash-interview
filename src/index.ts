@@ -4,6 +4,7 @@ import { logger } from "./api/middleware/logger";
 import { searchRoute } from "./api/routes/search";
 import { healthRoute } from "./api/routes/health";
 import { errorHander } from "./api/routes/errorHandler";
+import openApiSpec from "./api/openapi.json";
 
 export const server = serve({
   routes: {
@@ -11,6 +12,8 @@ export const server = serve({
     "/health": healthRoute,
     // Search API endpoint with validation and rate limiting
     "/search/:term": searchRoute,
+    // OpenAPI specification endpoint
+    "/openapi.json": () => Response.json(openApiSpec),
     // Serve index.html for all other routes (SPA fallback)
     "/*": index,
   },

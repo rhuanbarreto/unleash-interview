@@ -1,0 +1,270 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Norwegian Street Address Search API",
+    "description": "A high-performance API for searching Norwegian street addresses with real-time search capabilities. Built with Bun runtime and Trie-based search algorithm for efficient prefix matching across street names, postal codes, and cities.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://unleash.barreto.work",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Health check endpoint for monitoring and load balancer checks. Returns service status and uptime information.",
+        "operationId": "getHealth",
+        "tags": ["System"],
+        "responses": {
+          "200": {
+            "description": "Service is healthy and operational",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "ok",
+                  "uptime": 123.456
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search/{term}": {
+      "get": {
+        "summary": "Search Addresses",
+        "description": "Search for Norwegian addresses by street name, postal code, or city. Uses case-insensitive prefix matching across all fields. Returns up to 20 results.",
+        "operationId": "searchAddresses",
+        "tags": ["Search"],
+        "parameters": [
+          {
+            "name": "term",
+            "in": "path",
+            "required": true,
+            "description": "Search query term. Must be at least 3 characters. Special characters are automatically escaped for security.",
+            "schema": {
+              "type": "string",
+              "minLength": 3
+            },
+            "example": "oslo"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful search operation. Returns array of matching addresses (may be empty if no results found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "maxItems": 20,
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful search with results",
+                    "value": [
+                      {
+                        "postNumber": 101,
+                        "city": "OSLO",
+                        "street": "Oslo Sentrum Postboks 1",
+                        "typeCode": 4,
+                        "type": "Postboksadresse",
+                        "district": "Sentrum",
+                        "municipalityNumber": 301,
+                        "municipality": "Oslo",
+                        "county": "Oslo"
+                      },
+                      {
+                        "postNumber": 102,
+                        "city": "OSLO",
+                        "street": "Sentrum Postboks 10",
+                        "typeCode": 4,
+                        "type": "Postboksadresse",
+                        "district": "Sentrum",
+                        "municipalityNumber": 301,
+                        "municipality": "Oslo",
+                        "county": "Oslo"
+                      }
+                    ]
+                  },
+                  "empty": {
+                    "summary": "Successful search with no results",
+                    "value": []
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search term. The term may contain invalid characters, be too short, or be too long.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Search term contains invalid characters"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded. Maximum 100 requests per minute per IP address.",
+            "headers": {
+              "Retry-After": {
+                "description": "Number of seconds to wait before retrying",
+                "schema": {
+                  "type": "integer"
+                },
+                "example": 60
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Rate limit exceeded. Please try again later."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error occurred during search operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Address": {
+        "type": "object",
+        "required": ["postNumber", "city", "street", "typeCode", "type", "district", "municipalityNumber", "municipality", "county"],
+        "properties": {
+          "postNumber": {
+            "type": "integer",
+            "description": "Norwegian postal code (4-5 digits)",
+            "minimum": 0,
+            "maximum": 99999,
+            "example": 101
+          },
+          "city": {
+            "type": "string",
+            "description": "City name (typically uppercase)",
+            "example": "OSLO"
+          },
+          "street": {
+            "type": "string",
+            "description": "Street name or postal address (may include PO boxes)",
+            "example": "Oslo Sentrum Postboks 1"
+          },
+          "typeCode": {
+            "type": "integer",
+            "enum": [1, 2, 3, 4, 5, 6],
+            "description": "Address type code identifier",
+            "example": 4
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Firma/organisasjon med eige postnummer",
+              "Gate-/veg-adresse",
+              "Kjend stadnamn",
+              "Postboksadresse",
+              "Postboksar (tidl Serviceboks)",
+              "Stadnamn med postnummer"
+            ],
+            "description": "Address type description in Norwegian",
+            "example": "Postboksadresse"
+          },
+          "district": {
+            "type": "string",
+            "description": "District or neighborhood name",
+            "example": "Sentrum"
+          },
+          "municipalityNumber": {
+            "type": "integer",
+            "description": "Municipality identification number",
+            "example": 301
+          },
+          "municipality": {
+            "type": "string",
+            "description": "Municipality name",
+            "example": "Oslo"
+          },
+          "county": {
+            "type": "string",
+            "description": "County name",
+            "example": "Oslo"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": ["status", "uptime"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ok"],
+            "description": "Service health status",
+            "example": "ok"
+          },
+          "uptime": {
+            "type": "number",
+            "description": "Server uptime in seconds",
+            "minimum": 0,
+            "example": 123.456
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "Search term contains invalid characters"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "System",
+      "description": "System health and monitoring endpoints"
+    },
+    {
+      "name": "Search",
+      "description": "Address search operations"
+    }
+  ]
+}
