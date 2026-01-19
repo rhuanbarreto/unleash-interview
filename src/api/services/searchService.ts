@@ -1,6 +1,10 @@
 import TrieSearch from "trie-search";
 import addresses from "src/api/data/adresses.json";
-import { SEARCH_MIN_LENGTH, SEARCH_MAX_RESULTS } from "../../config/constants";
+import {
+  SEARCH_MAX_RESULTS,
+  SEARCH_MIN_LENGTH,
+  TRIE_SEARCH_MAX_RESULTS,
+} from "../../config/constants";
 
 const trie = new TrieSearch<(typeof addresses)[number]>(
   ["street", "postNumber", "city"],
@@ -8,7 +12,7 @@ const trie = new TrieSearch<(typeof addresses)[number]>(
     min: SEARCH_MIN_LENGTH,
     idFieldOrFunction: (i) => i.postNumber + i.city + i.typeCode,
     ignoreCase: true,
-  }
+  },
 );
 
 trie.addAll(addresses);
@@ -21,13 +25,15 @@ export function search(searchString: string): (typeof addresses)[number][] {
       trie.get(
         searchString,
         undefined,
-        SEARCH_MAX_RESULTS
+        TRIE_SEARCH_MAX_RESULTS,
       ) as ((typeof addresses)[number] & {
         $tsid: string;
       })[]
-    ).map((a) => {
-      const { $tsid, ...rest } = a;
-      return rest;
-    })
+    )
+      .map((a) => {
+        const { $tsid, ...rest } = a;
+        return rest;
+      })
+      .slice(0, SEARCH_MAX_RESULTS)
   );
 }

@@ -42,7 +42,7 @@ describe("searchService", () => {
       expect(results.length).toBeGreaterThan(0);
       // Check if any result has postNumber that contains or matches the search
       expect(results.some((r) => String(r.postNumber).includes("101"))).toBe(
-        true
+        true,
       );
     });
 
@@ -75,7 +75,7 @@ describe("searchService", () => {
       const results = search("Sentrum Postboks 1500");
       expect(results.length).toBeGreaterThan(0);
       expect(results.some((r) => r.street === "Sentrum Postboks 1500")).toBe(
-        true
+        true,
       );
     });
 
@@ -131,6 +131,13 @@ describe("searchService", () => {
       if (!firstResult) throw new Error("firstResult doesn't exist");
       // The $tsid property should be removed from results
       expect(firstResult).not.toHaveProperty("$tsid");
+    });
+
+    test("returns results for multi-word street queries", () => {
+      const results = search("Grønland Postboks 9151-9300");
+      expect(
+        results.some((r) => r.street === "Grønland Postboks 9151-9300"),
+      ).toBe(true);
     });
   });
 });

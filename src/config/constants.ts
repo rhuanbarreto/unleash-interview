@@ -2,6 +2,7 @@
 
 // Search configuration
 export const SEARCH_MIN_LENGTH = 3;
+export const TRIE_SEARCH_MAX_RESULTS = 1000;
 export const SEARCH_MAX_RESULTS = 20;
 export const SEARCH_MAX_TERM_LENGTH = 100;
 
